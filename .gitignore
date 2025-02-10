@@ -1,6 +1,7 @@
 # Dependency
 node_modules
 build
+coverage
 
 # Variable environment
 .env
