@@ -84,23 +84,23 @@ describe('Check-In Use Case', () => {
   })
 
   it('Should not be able to check in on distant gym', async () => {
-    // -3.722393, -38.590762
+    // -3.7217916,-38.5926336  Dumbbells
     gymsRepository.items.push({
       id: 'gymId-02',
       title: 'Dumbbless D2',
       description: '',
-      latitude: new Decimal(-3.722393),
-      longitude: new Decimal(-38.590762),
+      latitude: new Decimal(-3.7217916),
+      longitude: new Decimal(-38.5926336),
       phone: '',
     })
 
-    await expect(() => {
+    await expect(() =>
       sut.execute({
         gymId: 'gymId-02',
         userId: 'userId-01',
         userLatitude: -3.716671,
         userLongitude: -38.600207,
-      })
-    }).rejects.toBeInstanceOf(Error)
+      }),
+    ).rejects.toBeInstanceOf(Error)
   })
 })
