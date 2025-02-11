@@ -9,17 +9,17 @@ let gymsRepository: InMemoryGymsRepository
 let sut: CheckinUseCase
 
 describe('Check-In Use Case', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     checkInsRepository = new InMemoryCheckInsRepository()
     gymsRepository = new InMemoryGymsRepository()
     sut = new CheckinUseCase(checkInsRepository, gymsRepository)
 
-    gymsRepository.items.push({
+    await gymsRepository.items.push({
       id: 'gymId-01',
       title: 'Dumbbless',
       description: '',
-      latitude: new Decimal(0),
-      longitude: new Decimal(0),
+      latitude: new Decimal(-3.716671),
+      longitude: new Decimal(-38.600207),
       phone: '',
     })
 
@@ -34,8 +34,8 @@ describe('Check-In Use Case', () => {
     const { checkIn } = await sut.execute({
       gymId: 'gymId-01',
       userId: 'userId-01',
-      userLatitude: -3.7224068,
-      userLongitude: -38.6005319,
+      userLatitude: -3.716671,
+      userLongitude: -38.600207,
     })
 
     expect(checkIn.id).toEqual(expect.any(String))
@@ -47,16 +47,16 @@ describe('Check-In Use Case', () => {
     await sut.execute({
       gymId: 'gymId-01',
       userId: 'userId-01',
-      userLatitude: -3.7224068,
-      userLongitude: -38.6005319,
+      userLatitude: -3.716671,
+      userLongitude: -38.600207,
     })
 
     await expect(() =>
       sut.execute({
         gymId: 'gymId-01',
         userId: 'userId-01',
-        userLatitude: -3.7224068,
-        userLongitude: -38.6005319,
+        userLatitude: -3.716671,
+        userLongitude: -38.600207,
       }),
     ).rejects.toBeInstanceOf(Error)
   })
@@ -67,8 +67,8 @@ describe('Check-In Use Case', () => {
     await sut.execute({
       gymId: 'gymId-01',
       userId: 'userId-01',
-      userLatitude: -3.7224068,
-      userLongitude: -38.6005319,
+      userLatitude: -3.716671,
+      userLongitude: -38.600207,
     })
 
     vi.setSystemTime(new Date(2025, 1, 11, 8, 0, 0))
@@ -76,21 +76,21 @@ describe('Check-In Use Case', () => {
     const { checkIn } = await sut.execute({
       gymId: 'gymId-01',
       userId: 'userId-01',
-      userLatitude: -3.7224068,
-      userLongitude: -38.6005319,
+      userLatitude: -3.716671,
+      userLongitude: -38.600207,
     })
 
     expect(checkIn.id).toEqual(expect.any(String))
   })
 
   it('Should not be able to check in on distant gym', async () => {
-    // -3.7227363,-38.5922865
+    // -3.722393, -38.590762
     gymsRepository.items.push({
       id: 'gymId-02',
       title: 'Dumbbless D2',
       description: '',
-      latitude: new Decimal(-3.7227363),
-      longitude: new Decimal(-38.5922865),
+      latitude: new Decimal(-3.722393),
+      longitude: new Decimal(-38.590762),
       phone: '',
     })
 
@@ -98,8 +98,8 @@ describe('Check-In Use Case', () => {
       sut.execute({
         gymId: 'gymId-02',
         userId: 'userId-01',
-        userLatitude: -3.7224068,
-        userLongitude: -38.6005319,
+        userLatitude: -3.716671,
+        userLongitude: -38.600207,
       })
     }).rejects.toBeInstanceOf(Error)
   })
