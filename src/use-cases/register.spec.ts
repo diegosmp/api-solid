@@ -11,52 +11,52 @@ let usersRepository: InMemoryUsersRepository
 let sut: RegisterUseCase
 
 describe('Register Use Case', () => {
-    beforeEach(() => {
-        usersRepository = new InMemoryUsersRepository()
-        sut = new RegisterUseCase(usersRepository)
+  beforeEach(() => {
+    usersRepository = new InMemoryUsersRepository()
+    sut = new RegisterUseCase(usersRepository)
+  })
+
+  it('Should be able to register', async () => {
+    const { user } = await sut.execute({
+      name: 'Jonh Doe',
+      email: 'jonhdoe@email.com',
+      password: '123456',
     })
 
-    it('Should be able to register', async () => {
+    expect(user.id).toEqual(expect.any(String))
+  })
 
-        const { user } = await sut.execute({
-            name: 'Jonh Doe',
-            email: 'jonhdoe@email.com',
-            password: '123456'
-        })
-
-        expect(user.id).toEqual(expect.any(String))
+  it('Should hash user password upon registration', async () => {
+    const { user } = await sut.execute({
+      name: 'Jonh Doe',
+      email: 'jonhdoe@email.com',
+      password: '123456',
     })
 
-    it('Should hash user password upon registration', async () => {
+    const isPasswordCorrectlyHashed = await compare(
+      '123456',
+      user.password_hash,
+    )
 
-        const { user } = await sut.execute({
-            name: 'Jonh Doe',
-            email: 'jonhdoe@email.com',
-            password: '123456'
-        })
+    expect(isPasswordCorrectlyHashed).toBe(true)
+  })
 
-        const isPasswordCorrectlyHashed = await compare('123456', user.password_hash)
+  it('Should not be able to register with same email twice', async () => {
+    const email = 'jhondoe@example.com'
 
-        expect(isPasswordCorrectlyHashed).toBe(true)
+    await sut.execute({
+      name: 'Jonh Doe',
+      email,
+      password: '123456',
     })
 
-    it('Should not be able to register with same email twice', async () => {
-
-        const email = 'jhondoe@example.com'
-
+    expect(
+      async () =>
         await sut.execute({
-            name: 'Jonh Doe',
-            email,
-            password: '123456'
-        })
-
-        expect( async () => (
-            await sut.execute({
-                name: 'Jonh Doe',
-                email,
-                password: '123456'
-                })
-            )
-        ).rejects.toBeInstanceOf(UserAlreadyExistsError)
-    })
+          name: 'Jonh Doe',
+          email,
+          password: '123456',
+        }),
+    ).rejects.toBeInstanceOf(UserAlreadyExistsError)
+  })
 })
