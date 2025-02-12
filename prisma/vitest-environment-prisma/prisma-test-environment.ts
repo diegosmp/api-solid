@@ -1,10 +1,11 @@
+import { PrismaClient } from '@prisma/client'
 import 'dotenv/config'
 import { execSync } from 'node:child_process'
 
 import { randomUUID } from 'node:crypto'
 import { Environment } from 'vitest'
 
-// postgresql://docker:docker@localhost:5432/mydb?apisolid=public
+const prisma = new PrismaClient()
 
 function generateDatabeURL(schema: string) {
   if (!process.env.DATABASE_URL) {
@@ -30,7 +31,10 @@ export default <Environment>{
 
     return {
       async teardown() {
-        console.log('Teardown')
+        await prisma.$executeRawUnsafe(
+          `DROP SCHEMA IF EXISTS "${schema}" CASCADE`,
+        )
+        await prisma.$disconnect()
       },
     }
   },
