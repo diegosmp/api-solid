@@ -1,12 +1,9 @@
-import { makeCreateGymsUseCase } from '@/use-cases/factories/make-create-gym-use-case'
+import { makeFetchNearbyGymsUseCase } from '@/use-cases/factories/make-fetch-nearby-gyms-use-case'
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
 
 export async function nearby(request: FastifyRequest, reply: FastifyReply) {
-  const createGymsBodySchema = z.object({
-    title: z.string(),
-    description: z.string().nullable(),
-    phone: z.string().nullable(),
+  const nearbyGymsQuerySchema = z.object({
     latitude: z.number().refine((value) => {
       return Math.abs(value) <= 90
     }),
@@ -15,15 +12,13 @@ export async function nearby(request: FastifyRequest, reply: FastifyReply) {
     }),
   })
 
-  const { title, description, phone, latitude, longitude } =
-    createGymsBodySchema.parse(request.body)
-  const createGymsUseCase = makeCreateGymsUseCase()
-  await createGymsUseCase.execute({
-    title,
-    description,
-    phone,
-    latitude,
-    longitude,
+  const { latitude, longitude } = nearbyGymsQuerySchema.parse(request.body)
+  const fetcNearbyGymsUseCase = makeFetchNearbyGymsUseCase()
+  const { gyms } = await fetcNearbyGymsUseCase.execute({
+    userLatitude: latitude,
+    userLongitude: longitude,
   })
-  return reply.status(201).send()
+  return reply.status(200).send({
+    gyms,
+  })
 }
